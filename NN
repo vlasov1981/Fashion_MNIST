@@ -1,0 +1,54 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.datasets import fashion_mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras import utils
+
+# split by test and train subsets
+(x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+
+# check images
+plt.figure(figsize=(10,10))
+for i in range(25):
+  plt.subplot(5,5,i+1)
+  plt.imshow(x_train[i])
+  plt.xlabel(class_names[y_train[i]])
+
+# normilize data to have brightness in range 0-1
+x_train = x_train/255
+x_test = x_test / 255
+plt.figure(figsize=(10,10))
+for i in range(25):
+  plt.subplot(5,5,i+1)
+  plt.imshow(x_train[i])
+  plt.xlabel(class_names[y_train[i]])
+  
+  # build neural network
+  model = keras.Sequential([keras.layers.Flatten(input_shape=(28,28)),
+                         keras.layers.Dense(128, activation='relu'),
+                         keras.layers.Dense(10, activation='softmax')])
+# model compillation
+model.compile(optimizer=tf.keras.optimizers.SGD(),loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.summary()
+
+
+# model training
+model.fit(x_train, y_train, epochs = 10)
+
+# check on test data set
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print(f"Test accuracy {test_acc}")
+
+# prediction
+predictions = model.predict(x_train)
+n = 120
+print(y_train[n])
+plt.figure()
+plt.imshow(x_train[n])
+plt.colorbar()
+plt.grid(False)
+print(class_names[np.argmax(predictions[n])])
